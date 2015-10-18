@@ -1,15 +1,19 @@
 // main.rs
 extern crate regex;
 
-use std::error::Error;
+use std::fmt::{ Display, Formatter, Error };
+//use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 //use std::io::{BufReader,BufRead};
 use std::io::BufReader;
 use std::path::Path;
 use std::env;
+
+
 // https://doc.rust-lang.org/regex/regex/index.html
 use regex::Regex;
+
 
 trait EnglishTrait {
 	fn ename(&self) -> String;
@@ -32,13 +36,22 @@ impl EnglishTrait for EnglishName {
 }
 
 impl EnglishName {
-	fn new(name: &str) -> EnglishName {
+	fn new(name: &str, opis: &str) -> EnglishName {
 		EnglishName {
 			name: name.to_string(),
-			opis: name.to_string(),
+			opis: opis.to_string(),
 		}
 	}
 }
+
+impl std::fmt::Display for EnglishName {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+        //Ok(())
+        write!(f, "{},\t\t\t{}", self.name, self.opis)
+    }
+}
+
+
 
 fn print_engn<T: EnglishTrait>(engname: T) {
 	println!("Name is: {}", engname.ename() );
@@ -49,6 +62,7 @@ fn print_vec<T: EnglishName>(xs: T) {
 }
 */
 fn main() {
+	
 	
 	let mut engvec: Vec<EnglishName> = Vec::new();
 	
@@ -80,12 +94,27 @@ fn main() {
 	// Read file by lines 
 	for eline in efile.lines().filter_map(|result| result.ok()) {
 		//println!("{}", eline);
-		let s = EnglishName::new(&eline);
+		//                new(r"(\d{4})-(\d{2})-(\d{2})")
+		let re = Regex::new(r"(.*)(,)(.*)(\x22.*\x22)").unwrap();
+		
+		for cap in re.captures_iter(&eline) {
+			let s = EnglishName::new( cap.at(1).unwrap(), cap.at(4).unwrap() );
+			engvec.push(s);
+		}
+		
+		 
+		
+		//let s = EnglishName::new(&eline);
 		//print_engn(s);
-		engvec.push(s);
+		//engvec.push(s);
     }
 	println!("Vector len: {}", engvec.len());
-	
+	// Проверка что вектор заполнен
+	assert!( !engvec.is_empty() ); 
+    
+    for sengvect in engvec.iter() {
+    	println!("{}", sengvect);
+    }
     
     // Version Original:
     /*
