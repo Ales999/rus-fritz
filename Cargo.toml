@@ -1,0 +1,13 @@
+[package]
+
+name = "Rusic Fritz"
+version = "0.0.1"
+authors = [ "Your name <you@example.com>" ]
+
+[[bin]]
+
+name = "rus_fritz"
+
+[dependencies]
+regex = "0.1.8"
+regex_macros = "0.1.8"
