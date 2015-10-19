@@ -133,12 +133,12 @@ fn main() {
 	
 	// let fname_eng = Path::new("/Users/amekhanoshin/Documents/workspace/RusFritz/target/debug/EngFrame.strings");
 	let cur_dir = env::current_dir().unwrap();
-	println!("The current directory is {}", cur_dir.display());
+	//println!("The current directory is {}", cur_dir.display());
 	let eng_name = format!("{}/{}", cur_dir.display(), eng_file_name );
 	let rus_name = format!("{}/{}", cur_dir.display(), rus_file_name );
 
-	println!("Full Path: {}", eng_name, );
-	
+	//println!("Full Path: {}", eng_name, );
+	println!("/*\n\tRecreated\n*/");
 	let fname_eng = Path::new(&eng_name);
 	let fname_rus = Path::new(&rus_name);
    
@@ -184,12 +184,12 @@ fn main() {
     		if e.name == r.name {
     			e.opis = r.opis.clone();
     			found = true;
-    			println!("{},\t\t{}", r.name, r.opis);
+    			println!("{},\t\t{};", r.name, r.opis);
     		}
     	}
     	if !found {
     		//println!("ERR: {} - не найдено соответствие", e.name );
-    		println!("{},\t\t{}",e.name, e.opis);
+    		println!("{},\t\t{};",e.name, e.opis);
     	}
     	found = false;
     }
