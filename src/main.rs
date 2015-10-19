@@ -184,17 +184,17 @@ fn main() {
     		if e.name == r.name {
     			e.opis = r.opis.clone();
     			found = true;
-    			println!("{}\t\t{}", r.name, r.opis);
+    			println!("{},\t\t{}", r.name, r.opis);
     		}
     	}
     	if !found {
     		//println!("ERR: {} - не найдено соответствие", e.name );
-    		println!("NeedModify: {}\t\t{}",e.name, e.opis);
+    		println!("{},\t\t{}",e.name, e.opis);
     	}
     	found = false;
     }
     
-    println!("Обработано {} строк из {}",i, engvec.len());
+    //println!("Обработано {} строк из {}",i, engvec.len());
     //let writer = std::io::file_writer(&Path(std::os::args()[2]), [io::Append, io::Create]).unwrap();
 
 }
