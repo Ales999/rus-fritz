@@ -79,10 +79,11 @@ impl std::fmt::Display for RussianName {
 
 
 fn open_eng_file(engvec: &mut Vec<EnglishName>, file_name: &String) {
-
-	let file = match File::open(file_name) {
+	let path = Path::new(file_name);
+	let display = path.display();
+	let file = match File::open(path) {
 		Ok(f) => f,
-		Err(..) => panic!("Not open file: {}",file_name), 
+		Err(why) => panic!("Not open file {}: {}", display, Error::description(&why) ), 
 	};
 	let re = Regex::new(r"(.*)(,)(.*)(\x22.*\x22)").unwrap();
 	for line in BufReader::new(file).lines() {
@@ -97,10 +98,10 @@ fn open_eng_file(engvec: &mut Vec<EnglishName>, file_name: &String) {
 
 fn open_rus_file(engvec: &mut Vec<RussianName>, file_name: &String) {
 	let path = Path::new(file_name);
-	//let display = path.display();
+	let display = path.display();
 	let file = match File::open(path) {
 		Ok(f) => f,
-		Err(..) => panic!("Not open file: {}",file_name), 
+		Err(why) => panic!("Not open file: {}: {}", display, Error::description(&why) ), 
 	};
 	let re = Regex::new(r"(.*)(,)(.*)(\x22.*\x22)").unwrap();
 	for line in BufReader::new(file).lines() {
@@ -115,10 +116,12 @@ fn open_rus_file(engvec: &mut Vec<RussianName>, file_name: &String) {
 
 
 fn create_out_file(file_name: &String) -> BufWriter<File> {
+	let path = Path::new(file_name);
+	let display = path.display();
 	let mut options = OpenOptions::new();
-	let file = match options.create(true).write(true).open(file_name) {
+	let file = match options.create(true).write(true).open(path) {
 		Ok(file) => file,
-		Err(..) => panic!("Not create/open file: {}", file_name),
+		Err(why) => panic!("Not create/open file {}: {}", display, Error::description(&why)),
 	};
 	let writer = BufWriter::new(file);
 	return writer;
