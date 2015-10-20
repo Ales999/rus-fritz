@@ -1,5 +1,12 @@
 // main.rs
+#![feature(plugin)]
+#![plugin(docopt_macros)]
+
+extern crate rustc_serialize;
+extern crate docopt;
+
 extern crate regex;
+
 
 use std::fmt::{ Display, Formatter, Error };
 //use std::error::Error;
@@ -9,10 +16,23 @@ use std::io::prelude::*;
 use std::io::BufReader;
 use std::path::Path;
 use std::env;
-
+// https://github.com/docopt/docopt.rs
+use docopt::Docopt;
 
 // https://doc.rust-lang.org/regex/regex/index.html
 use regex::Regex;
+
+docopt!(Args derive Debug, "
+Alexey Mekhanoshin
+
+Usage:
+	rus_fritz -e <engfile>  -r <rusfile> ( -o <outfile> | --stdout )
+	rus_fritz (-h | --help)
+	rus_fritz --version
+Options:
+  -h --help		Show this screen.
+  --version		Show version.
+");
 
 /*
 trait EnglishTrait {
@@ -29,6 +49,7 @@ struct EnglishName {
 struct RussianName {
 	name: String,
 	opis: String,
+	using: bool,
 }
 /*
 struct RussianNameIntoIterator {
@@ -85,6 +106,7 @@ impl RussianName {
 		RussianName {
 			name: name.into(),
 			opis: opis.into(),
+			using: false,
 		}
 	}
 }
@@ -123,22 +145,31 @@ fn find_rus_opis( russians: &Vec<RussianName>, name_find: String) -> Option<&Str
 */
 
 fn main() {
-	
+
+	let args: Args = Args::docopt().decode().unwrap_or_else(|e| e.exit());
+	if args.flag_stdout {
+		println!("{:?}", args);
+		if args.flag_h { println!("Print Help coming soon ..." ); return; }
+		if args.flag_version { println!("Print Version coming soon ..." ); return; }
+	} 
 	
 	let mut engvec: Vec<EnglishName> = Vec::new();
 	let mut rusvec: Vec<RussianName> = Vec::new();
+
+	//let eng_file_name = "EngFrame.strings";
+	// let rus_file_name = "RusFrame.strings";
 	
-	let eng_file_name = "EngFrame.strings";
-	let rus_file_name = "RusFrame.strings";
+	let eng_file_name = args.arg_engfile.to_string();
+	let rus_file_name = args.arg_rusfile.to_string();
 	
-	// let fname_eng = Path::new("/Users/amekhanoshin/Documents/workspace/RusFritz/target/debug/EngFrame.strings");
+	
 	let cur_dir = env::current_dir().unwrap();
 	//println!("The current directory is {}", cur_dir.display());
 	let eng_name = format!("{}/{}", cur_dir.display(), eng_file_name );
 	let rus_name = format!("{}/{}", cur_dir.display(), rus_file_name );
 
 	//println!("Full Path: {}", eng_name, );
-	println!("/*\n\tRecreated\n*/");
+	println!("/*\n\tRecreated by RusFritz project\n*/");
 	let fname_eng = Path::new(&eng_name);
 	let fname_rus = Path::new(&rus_name);
    
@@ -184,15 +215,33 @@ fn main() {
     		if e.name == r.name {
     			e.opis = r.opis.clone();
     			found = true;
-    			println!("{},\t\t{};", r.name, r.opis);
+    			r.using = true;
+    			if args.flag_stdout {
+    				println!("{},\t\t{};", r.name, r.opis);
+    			} else {
+    				// Write to file
+    			}
     		}
     	}
     	if !found {
     		//println!("ERR: {} - не найдено соответствие", e.name );
-    		println!("{},\t\t{};",e.name, e.opis);
+    		if args.flag_stdout { 
+    			println!("{},\t\t{};",e.name, e.opis);
+    		} else {
+    			// Wite output to file
+    		}
+    		
     	}
     	found = false;
     }
+    // Print if not using from Russian Names
+    println!("------ Error Found --------");
+    for r in rusvec {
+    	if r.using == false {
+    		println!("{},\t\t{}",r.name,r.opis);
+    	}
+    }
+    
     
     //println!("Обработано {} строк из {}",i, engvec.len());
     //let writer = std::io::file_writer(&Path(std::os::args()[2]), [io::Append, io::Create]).unwrap();
