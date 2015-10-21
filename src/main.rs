@@ -170,10 +170,10 @@ fn main() {
 	let mut transme = String::new();
 
     if args.flag_stdout {
-        println!("/*\n\tRecreated by RusFritz project\n*/");	
+        println!("/*\n\tRecreated by RusFritz project\n*/\n");	
     } else {
 		// Write to file
-		outstr.push_str( &format!("/*\n\tRecreated by RusFritz project\n*/") );
+		outstr.push_str( &format!("/*\n\tRecreated by RusFritz project\n*/\n") );
     }
 	
     for e in &mut engvec {
@@ -193,14 +193,14 @@ fn main() {
         if !found {
             if  args.flag_askme {
                 // Запросим перевод 
-                transme = format!("{},\t\t\"{}\";\n", e.name, ask_me_trans( &e.opis, args.flag_q ) );
+                transme = format!("{},\t\t\"{}\";", e.name, ask_me_trans( &e.opis, args.flag_q ) );
             } else {
-                transme = format!("{},\t\t\"{}\";\n", e.name, e.opis);
+                transme = format!("{},\t\t\"{}\";", e.name, e.opis);
             }
             if args.flag_stdout {
                 println!("{}", transme ); 
             } else {
-               outstr.push_str( &transme ); 
+               outstr.push_str( &format!("{}\n",transme) ); 
             }
         }
         found = false;
