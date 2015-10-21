@@ -65,7 +65,6 @@ impl RussianName {
 
 impl std::fmt::Display for EnglishName {    
     fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
-        //Ok(())
         write!(f, "Display Eng: {},\t\t\t{}", self.name, self.opis)
     }
 }
@@ -73,7 +72,7 @@ impl std::fmt::Display for EnglishName {
 impl std::fmt::Display for RussianName {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
         write!(f, "Display Rus: {},\t\t\t{}", self.name, self.opis)
-        }
+    }
 }
 
 
@@ -94,7 +93,7 @@ fn open_eng_file(engvec: &mut Vec<EnglishName>, file_name: &String) {
     }
 }
 
-fn open_rus_file(engvec: &mut Vec<RussianName>, file_name: &String) {
+fn open_rus_file(rusvec: &mut Vec<RussianName>, file_name: &String) {
     let path = Path::new(file_name);
     let display = path.display();
     let file = match File::open(path) {
@@ -106,10 +105,22 @@ fn open_rus_file(engvec: &mut Vec<RussianName>, file_name: &String) {
         let s = line.unwrap();
         for cap in re.captures_iter(&s) {
             let ubs = RussianName::new( cap.at(1).unwrap(), cap.at(4).unwrap() );
-            engvec.push(ubs);
+            rusvec.push(ubs);
         }
     }
 }
+
+fn open_any_file(file_name: &String) -> BufReader<File> {
+    let path = Path::new(file_name);
+    let display = path.display();
+    let file = match File::open(path) {
+        Ok(f) => f,
+        Err(why) => panic!("Not open file {}: {}", display, Error::description(&why) ), 
+    };
+    let reader = BufReader::new(file);
+    return reader;
+}
+
 
 fn create_out_file(file_name: &String) -> BufWriter<File> {
     let path = Path::new(file_name);
@@ -135,11 +146,31 @@ fn main() {
      
     let mut engvec: Vec<EnglishName> = Vec::new();
     let mut rusvec: Vec<RussianName> = Vec::new();
-
+/*
     open_eng_file(&mut engvec, &args.arg_engfile.to_string());
     assert!( !engvec.is_empty() );
     open_rus_file(&mut rusvec, &args.arg_rusfile.to_string());
     assert!( !rusvec.is_empty() );
+*/
+    let re = Regex::new(r"(.*)(,)(.*)(\x22.*\x22)").unwrap();
+    // Create English Vector
+    for line in open_any_file(&args.arg_engfile.to_string()).lines() {
+        let s = line.unwrap();
+        for cap in re.captures_iter(&s) {
+            let ubs = EnglishName::new( cap.at(1).unwrap(), cap.at(4).unwrap() );
+            engvec.push(ubs);
+        }
+    }
+    assert!( !engvec.is_empty() );
+    // Create Russian Vector
+    for line in open_any_file(&args.arg_rusfile.to_string()).lines() {
+        let s = line.unwrap();
+        for cap in re.captures_iter(&s) {
+            let ubs = RussianName::new( cap.at(1).unwrap(), cap.at(4).unwrap() );
+            rusvec.push(ubs);
+        }
+    }
+    assert!( !rusvec.is_empty() );  
 
 	//  Подготовка закончилась, начинаем работу.
 
