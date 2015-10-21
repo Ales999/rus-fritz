@@ -6,6 +6,7 @@ extern crate rustc_serialize;
 extern crate docopt;
 extern crate regex;
 
+use std::io;
 use std::fmt::{ Display, Formatter };
 use std::error::Error;
 use std::fs::File;
@@ -17,6 +18,7 @@ use std::path::Path;
 // https://github.com/docopt/docopt.rs
 use docopt::Docopt;
 
+
 // https://doc.rust-lang.org/regex/regex/index.html
 use regex::Regex;
 
@@ -24,12 +26,13 @@ docopt!(Args derive Debug, "
 Alexey Mekhanoshin
 
 Usage:
-	rus_fritz -e <engfile>  -r <rusfile> ( -o <outfile> | --stdout )
+	rus_fritz -e <engfile>  -r <rusfile> ( -o <outfile> | --stdout ) [--askme]
 	rus_fritz (-h | --help)
 	rus_fritz --version
 Options:
   -h --help		Show this screen.
   --version		Show version.
+  --askme		Ask Me for translate
 ");
 
 struct EnglishName {
@@ -100,6 +103,27 @@ fn create_out_file(file_name: &String) -> BufWriter<File> {
 }
 
 
+fn ask_me_trans(name: &str, opis: &str) -> String {
+
+    let mut guess = String::new();
+
+    // Debug print:
+    println!("Переведите: {}", opis);
+        let innum = io::stdin()
+                  .read_line(&mut guess)
+                  .ok()
+                  .expect("Failed to read line");
+    // If User input chars              
+    if innum > 1 {
+        let output = format!("\"{}\"", guess.trim() );
+        return output;  
+    } else { // Using English translating
+        let output = opis.trim();
+        return output.to_string();
+    }
+}
+
+// ----------------------------------------------------------------------
 fn main() {
 
     let args: Args = Args::docopt().decode().unwrap_or_else(|e| e.exit());
@@ -111,12 +135,7 @@ fn main() {
      
     let mut engvec: Vec<EnglishName> = Vec::new();
     let mut rusvec: Vec<RussianName> = Vec::new();
-/*
-    open_eng_file(&mut engvec, &args.arg_engfile.to_string());
-    assert!( !engvec.is_empty() );
-    open_rus_file(&mut rusvec, &args.arg_rusfile.to_string());
-    assert!( !rusvec.is_empty() );
-*/
+
     let re = Regex::new(r"(.*)(,)(.*)(\x22.*\x22)").unwrap();
     // Create English Vector
     for line in open_any_file(&args.arg_engfile.to_string()).lines() {
@@ -165,11 +184,16 @@ fn main() {
             }
         }
         if !found {
-            //println!("ERR: {} - не найдено соответствие", e.name );
-            if args.flag_stdout { 
-                println!("{},\t\t{};",e.name, e.opis);
-            } else {
-                // Wite output to file
+            //println!("myERR: {} - не найдено соответствие", e.name );
+            if args.flag_stdout {
+                if  args.flag_askme {
+                    let rs = ask_me_trans(&e.name, &e.opis);
+                    // Debug 
+                    println!("{},\t\t{};", e.name, rs );
+                    //outstr.push_str(&s);
+                } else {
+                    println!("{},\t\t{};",e.name, e.opis);
+                }
             }
         }
         found = false;
