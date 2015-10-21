@@ -103,7 +103,7 @@ fn create_out_file(file_name: &String) -> BufWriter<File> {
 }
 
 
-fn ask_me_trans(name: &str, opis: &str) -> String {
+fn ask_me_trans( opis: &str ) -> String {
 
     let mut guess = String::new();
 
@@ -164,12 +164,10 @@ fn main() {
 		// Write to file
     }
 
-    let mut i=0;
     let mut found = false;
     let mut outstr = String::new();
 	
     for e in &mut engvec {
-        i = i+1;
         for r in &mut rusvec {
             if e.name == r.name {
                 e.opis = r.opis.clone();
@@ -184,17 +182,15 @@ fn main() {
             }
         }
         if !found {
-            //println!("myERR: {} - не найдено соответствие", e.name );
             if args.flag_stdout {
                 if  args.flag_askme {
-                    let rs = ask_me_trans(&e.name, &e.opis);
-                    // Debug 
-                    println!("{},\t\t{};", e.name, rs );
-                    //outstr.push_str(&s);
+                    // Запросим перевод 
+                    let rustrans = ask_me_trans( &e.opis );
+                    println!("{},\t\t{};", e.name, rustrans );
                 } else {
                     println!("{},\t\t{};",e.name, e.opis);
                 }
-            }
+            } // End args.flag_stdout check
         }
         found = false;
     }
@@ -218,7 +214,10 @@ fn main() {
                 },
                 Ok(_) => println!("Good write file"),
             };
-            wr.flush();	
+            match wr.flush() {
+                Err(why) => panic!("Don't flush: {}", Error::description(&why) ),
+                Ok(_) => (),
+            };	
         }
     }
     //println!("Обработано {} строк из {}",i, engvec.len());
