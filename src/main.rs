@@ -165,7 +165,8 @@ fn main() {
     }
 
     let mut found = false;
-    let mut outstr = String::new();
+    let mut outstr  = String::new();
+	let mut transme = String::new();
 	
     for e in &mut engvec {
         for r in &mut rusvec {
@@ -182,15 +183,18 @@ fn main() {
             }
         }
         if !found {
+            //let transme: String;
+            if  args.flag_askme {
+                // Запросим перевод 
+                transme = format!("{},\t\t{};\n", e.name, ask_me_trans( &e.opis ) );
+            } else {
+                transme = format!("{},\t\t{};\n", e.name, e.opis);
+            }
             if args.flag_stdout {
-                if  args.flag_askme {
-                    // Запросим перевод 
-                    let rustrans = ask_me_trans( &e.opis );
-                    println!("{},\t\t{};", e.name, rustrans );
-                } else {
-                    println!("{},\t\t{};",e.name, e.opis);
-                }
-            } // End args.flag_stdout check
+                println!("{}", transme ); 
+            } else {
+               outstr.push_str( &transme ); 
+            }
         }
         found = false;
     }
@@ -212,14 +216,13 @@ fn main() {
                         &args.arg_outfile.to_string(),
                         Error::description(&why)) 
                 },
-                Ok(_) => println!("Good write file"),
+                Ok(_) => (),
             };
             match wr.flush() {
                 Err(why) => panic!("Don't flush: {}", Error::description(&why) ),
                 Ok(_) => (),
             };	
-        }
+        } // Check Len
     }
-    //println!("Обработано {} строк из {}",i, engvec.len());
-    //let writer = std::io::file_writer(&Path(std::os::args()[2]), [io::Append, io::Create]).unwrap();
+
 }
