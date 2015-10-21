@@ -26,13 +26,14 @@ docopt!(Args derive Debug, "
 Alexey Mekhanoshin
 
 Usage:
-	rus_fritz -e <engfile>  -r <rusfile> ( -o <outfile> | --stdout ) [--askme]
+	rus_fritz -e <engfile>  -r <rusfile> ( -o <outfile> | --stdout ) [--askme -q]
 	rus_fritz (-h | --help)
 	rus_fritz --version
 Options:
   -h --help		Show this screen.
   --version		Show version.
   --askme		Ask Me for translate
+  -q			Quet mode
 ");
 
 struct EnglishName {
@@ -103,19 +104,25 @@ fn create_out_file(file_name: &String) -> BufWriter<File> {
 }
 
 
-fn ask_me_trans( opis: &str ) -> String {
+fn ask_me_trans( opis: &str, flag_q: bool ) -> String {
 
     let mut guess = String::new();
 
     // Debug print:
-    println!("Переведите: {}", opis);
+    if flag_q {
+        println!("{}", opis);
+    } else {
+        println!("Переведите: {}", opis);
+    }
+    
         let innum = io::stdin()
                   .read_line(&mut guess)
                   .ok()
                   .expect("Failed to read line");
+    println!("Ok, waiting next ...");              
     // If User input chars              
     if innum > 1 {
-        let output = format!("\"{}\"", guess.trim() );
+        let output = format!("{}", guess.trim() );
         return output;  
     } else { // Using English translating
         let output = opis.trim();
@@ -136,12 +143,12 @@ fn main() {
     let mut engvec: Vec<EnglishName> = Vec::new();
     let mut rusvec: Vec<RussianName> = Vec::new();
 
-    let re = Regex::new(r"(.*)(,)(.*)(\x22.*\x22)").unwrap();
+    let re = Regex::new(r"(.*)(,)(.*)(\x22(.*)\x22)").unwrap();
     // Create English Vector
     for line in open_any_file(&args.arg_engfile.to_string()).lines() {
         let s = line.unwrap();
         for cap in re.captures_iter(&s) {
-            let ubs = EnglishName::new( cap.at(1).unwrap(), cap.at(4).unwrap() );
+            let ubs = EnglishName::new( cap.at(1).unwrap(), cap.at(5).unwrap() );
             engvec.push(ubs);
         }
     }
@@ -150,7 +157,7 @@ fn main() {
     for line in open_any_file(&args.arg_rusfile.to_string()).lines() {
         let s = line.unwrap();
         for cap in re.captures_iter(&s) {
-            let ubs = RussianName::new( cap.at(1).unwrap(), cap.at(4).unwrap() );
+            let ubs = RussianName::new( cap.at(1).unwrap(), cap.at(5).unwrap() );
             rusvec.push(ubs);
         }
     }
@@ -158,15 +165,16 @@ fn main() {
 
 	//  Подготовка закончилась, начинаем работу.
 
+    let mut found = false;
+    let mut outstr  = String::new();
+	let mut transme = String::new();
+
     if args.flag_stdout {
         println!("/*\n\tRecreated by RusFritz project\n*/");	
     } else {
 		// Write to file
+		outstr.push_str( &format!("/*\n\tRecreated by RusFritz project\n*/") );
     }
-
-    let mut found = false;
-    let mut outstr  = String::new();
-	let mut transme = String::new();
 	
     for e in &mut engvec {
         for r in &mut rusvec {
@@ -175,20 +183,19 @@ fn main() {
                 found = true;
                 r.using = true;
                 if args.flag_stdout {
-                    println!("{},\t\t{};", r.name, r.opis);
+                    println!("{},\t\t\"{}\";", r.name, r.opis);
                 } else {
-                    let s = String::from( format!("{},\t\t{};\n", r.name, r.opis) );
+                    let s = String::from( format!("{},\t\t\"{}\";\n", r.name, r.opis) );
                     outstr.push_str(&s);
                 }
             }
         }
         if !found {
-            //let transme: String;
             if  args.flag_askme {
                 // Запросим перевод 
-                transme = format!("{},\t\t{};\n", e.name, ask_me_trans( &e.opis ) );
+                transme = format!("{},\t\t\"{}\";\n", e.name, ask_me_trans( &e.opis, args.flag_q ) );
             } else {
-                transme = format!("{},\t\t{};\n", e.name, e.opis);
+                transme = format!("{},\t\t\"{}\";\n", e.name, e.opis);
             }
             if args.flag_stdout {
                 println!("{}", transme ); 
@@ -199,10 +206,12 @@ fn main() {
         found = false;
     }
     // Print if not using from Russian Names
-    println!("------ Not using Found from Russian File --------");
-    for r in rusvec {
-        if r.using == false {
-            println!("{},\t\t{}",r.name,r.opis);
+    if args.flag_q == false {
+        println!("------ Not using Found from Russian File --------");
+        for r in rusvec {
+            if r.using == false {
+                println!("{},\t\t\"{}\"",r.name,r.opis);
+            }
         }
     }
 
