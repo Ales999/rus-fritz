@@ -6,24 +6,25 @@ extern crate rustc_serialize;
 extern crate docopt;
 extern crate regex;
 
+use std::io::prelude::*;
 use std::io;
+use std::io::BufReader;
+use std::io::BufWriter;
+use std::fs::File;
+use std::fs::OpenOptions;
+use std::path::Path;
 use std::fmt::{ Display, Formatter };
 use std::error::Error;
-use std::fs::File;
-use std::io::prelude::*;
-use std::io::BufReader;
-use std::fs::OpenOptions;
-use std::io::BufWriter;
-use std::path::Path;
+
+
 // https://github.com/docopt/docopt.rs
 use docopt::Docopt;
-
 
 // https://doc.rust-lang.org/regex/regex/index.html
 use regex::Regex;
 
 docopt!(Args derive Debug, "
-Alexey Mekhanoshin
+Rus Fritz
 
 Usage:
 	rus_fritz -e <engfile>  -r <rusfile> ( -o <outfile> | --stdout ) [--askme -q]
@@ -170,12 +171,13 @@ fn main() {
 	let mut transme = String::new();
 
     if args.flag_stdout {
-        println!("/*\n\tRecreated by RusFritz project\n*/");	
+        println!("/*\n\tRecreated by RusFritz project\n*/\n");	
     } else {
-		// Write to file
-		outstr.push_str( &format!("/*\n\tRecreated by RusFritz project\n*/") );
+		// Write header to file
+		outstr.push_str( &format!("/*\n\tRecreated by RusFritz project\n*/\n") );
     }
-	
+
+	// Main Loop
     for e in &mut engvec {
         for r in &mut rusvec {
             if e.name == r.name {
@@ -193,14 +195,14 @@ fn main() {
         if !found {
             if  args.flag_askme {
                 // Запросим перевод 
-                transme = format!("{},\t\t\"{}\";\n", e.name, ask_me_trans( &e.opis, args.flag_q ) );
+                transme = format!("{},\t\t\"{}\";", e.name, ask_me_trans( &e.opis, args.flag_q ) );
             } else {
-                transme = format!("{},\t\t\"{}\";\n", e.name, e.opis);
+                transme = format!("{},\t\t\"{}\";", e.name, e.opis);
             }
             if args.flag_stdout {
                 println!("{}", transme ); 
             } else {
-               outstr.push_str( &transme ); 
+               outstr.push_str( &format!("{}\n",transme) ); 
             }
         }
         found = false;

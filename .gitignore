@@ -3,3 +3,4 @@
 .settings
 Cargo.lock
 target
+src/tmp*
