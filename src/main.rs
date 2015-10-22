@@ -6,24 +6,25 @@ extern crate rustc_serialize;
 extern crate docopt;
 extern crate regex;
 
+use std::io::prelude::*;
 use std::io;
+use std::io::BufReader;
+use std::io::BufWriter;
+use std::fs::File;
+use std::fs::OpenOptions;
+use std::path::Path;
 use std::fmt::{ Display, Formatter };
 use std::error::Error;
-use std::fs::File;
-use std::io::prelude::*;
-use std::io::BufReader;
-use std::fs::OpenOptions;
-use std::io::BufWriter;
-use std::path::Path;
+
+
 // https://github.com/docopt/docopt.rs
 use docopt::Docopt;
-
 
 // https://doc.rust-lang.org/regex/regex/index.html
 use regex::Regex;
 
 docopt!(Args derive Debug, "
-Alexey Mekhanoshin
+Rus Fritz
 
 Usage:
 	rus_fritz -e <engfile>  -r <rusfile> ( -o <outfile> | --stdout ) [--askme -q]
@@ -172,10 +173,11 @@ fn main() {
     if args.flag_stdout {
         println!("/*\n\tRecreated by RusFritz project\n*/\n");	
     } else {
-		// Write to file
+		// Write header to file
 		outstr.push_str( &format!("/*\n\tRecreated by RusFritz project\n*/\n") );
     }
-	
+
+	// Main Loop
     for e in &mut engvec {
         for r in &mut rusvec {
             if e.name == r.name {
