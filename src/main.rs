@@ -7,7 +7,6 @@ extern crate docopt;
 extern crate regex;
 
 use std::io::prelude::*;
-use std::io;
 use std::io::BufReader;
 use std::io::BufWriter;
 use std::fs::File;
@@ -116,7 +115,7 @@ fn ask_me_trans( opis: &str, flag_q: bool ) -> String {
         println!("Переведите: {}", opis);
     }
     
-        let innum = io::stdin()
+        let innum = std::io::stdin()
                   .read_line(&mut guess)
                   .ok()
                   .expect("Failed to read line");
@@ -168,7 +167,7 @@ fn main() {
 
     let mut found = false;
     let mut outstr  = String::new();
-	let mut transme = String::new();
+	let mut _transme = String::new();
 
     if args.flag_stdout {
         println!("/*\n\tRecreated by RusFritz project\n*/\n");	
@@ -195,14 +194,14 @@ fn main() {
         if !found {
             if  args.flag_askme {
                 // Запросим перевод 
-                transme = format!("{},\t\t\"{}\";", e.name, ask_me_trans( &e.opis, args.flag_q ) );
+                _transme = format!("{},\t\t\"{}\";", e.name, ask_me_trans( &e.opis, args.flag_q ) );
             } else {
-                transme = format!("{},\t\t\"{}\";", e.name, e.opis);
+                _transme = format!("{},\t\t\"{}\";", e.name, e.opis);
             }
             if args.flag_stdout {
-                println!("{}", transme ); 
+                println!("{}", _transme ); 
             } else {
-               outstr.push_str( &format!("{}\n",transme) ); 
+               outstr.push_str( &format!("{}\n",_transme) ); 
             }
         }
         found = false;
