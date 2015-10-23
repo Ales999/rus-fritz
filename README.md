@@ -8,7 +8,6 @@ Rus Fritz
 В нашем случае, был уже перевод под оригинальную версию Fritz 14, но при обновлении оболочки вся русификация слетела, и все пункты стали выглядеть как NOTEXT.
 
 #Add Info
-
 Собственно что делает программа: 
 
 Загружает в память новый _английский_ файл, и старый _русифицированный_. Его структура (показана часть английского файла!), такова:
@@ -38,8 +37,8 @@ M_DONE,                                           "Done";
 3. После получения файла опять используем "Notepad++" для преобразования обратно в ANSI, по аналогии со вторым пунктом.
 
 ## Download
-* [Version 0.0.7](https://github.com/Ales999/rus-fritz/archive/master.zip)
-* Other Versions
+* [Version 0.0.7](https://github.com/Ales999/rus-fritz/archive/rusfritz-0.0.7.zip)
+* [Version 0.0.6](https://github.com/Ales999/rus-fritz/archive/0.0.6.zip)
 
 ## Get and Compile
 ```
