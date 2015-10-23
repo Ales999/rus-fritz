@@ -135,7 +135,7 @@ fn main() {
 
     let args: Args = Args::docopt().decode().unwrap_or_else(|e| e.exit());
     if args.flag_stdout {
-        println!("{:?}", args);
+        // Debug: println!("{:?}", args);
         if args.flag_h { println!("Print Help coming soon ..." ); return; }
         if args.flag_version { println!("Print Version coming soon ..." ); return; }
     }
