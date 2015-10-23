@@ -1,8 +1,8 @@
 [package]
 
 name = "Rusic Fritz"
-version = "0.0.6"
-authors = [ "Mekhanoshin Alexey <foo@org.com>" ]
+version = "0.0.7"
+authors = [ "Mekhanoshin Alexey <ales999@gmail.com>" ]
 
 [[bin]]
 
