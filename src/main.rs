@@ -12,7 +12,6 @@ use std::io::BufWriter;
 use std::fs::File;
 use std::fs::OpenOptions;
 use std::path::Path;
-use std::fmt::{ Display, Formatter };
 use std::error::Error;
 
 
@@ -22,18 +21,18 @@ use docopt::Docopt;
 // https://doc.rust-lang.org/regex/regex/index.html
 use regex::Regex;
 
-docopt!(Args derive Debug, "
-Rus Fritz
+docopt!(Args derive Debug,"
+Rus Fritz.
 
 Usage:
-	rus_fritz -e <engfile>  -r <rusfile> ( -o <outfile> | --stdout ) [--askme -q]
-	rus_fritz (-h | --help)
-	rus_fritz --version
+    rus_fritz -e <engfile>  -r <rusfile> ( -o <outfile> | --stdout ) [ -q ] [ --askme ] 
+    rus_fritz --help
+    rus_fritz --version
 Options:
-  -h --help		Show this screen.
-  --version		Show version.
-  --askme		Ask Me for translate
-  -q			Quet mode
+  -q		Quet mode
+  --askme	Ask Me for translate
+  --help	Display this help and exit
+  --version	Output version information and exit
 ");
 
 struct EnglishName {
@@ -66,20 +65,8 @@ impl RussianName {
     }
 }
 
-
-impl std::fmt::Display for EnglishName {    
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
-        write!(f, "Display Eng: {},\t\t\t{}", self.name, self.opis)
-    }
-}
-
-impl std::fmt::Display for RussianName {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
-        write!(f, "Display Rus: {},\t\t\t{}", self.name, self.opis)
-    }
-}
-
-fn open_any_file(file_name: &String) -> BufReader<File> {
+/// Открыть файл
+fn open_any_file( file_name: &str ) -> BufReader<File> {
     let path = Path::new(file_name);
     let display = path.display();
     let file = match File::open(path) {
@@ -90,8 +77,8 @@ fn open_any_file(file_name: &String) -> BufReader<File> {
     return reader;
 }
 
-
-fn create_out_file(file_name: &String) -> BufWriter<File> {
+/// Создать и открыть файл для записи результатов
+fn create_out_file( file_name: &str ) -> BufWriter<File> {
     let path = Path::new(file_name);
     let display = path.display();
     let mut options = OpenOptions::new();
@@ -103,10 +90,10 @@ fn create_out_file(file_name: &String) -> BufWriter<File> {
     return writer;
 }
 
-
 fn ask_me_trans( opis: &str, flag_q: bool ) -> String {
 
-    let mut guess = String::new();
+    let mut in_buff = String::new();
+    let mut _output = String::new(); 
 
     // Debug print:
     if flag_q {
@@ -115,37 +102,39 @@ fn ask_me_trans( opis: &str, flag_q: bool ) -> String {
         println!("Переведите: {}", opis);
     }
     
-        let innum = std::io::stdin()
-                  .read_line(&mut guess)
-                  .ok()
-                  .expect("Failed to read line");
-    println!("Ok, waiting next ...");              
+    let innum = std::io::stdin()
+            .read_line( &mut in_buff )
+            .ok()
+            .expect("Failed to read line");
+    if !flag_q { 
+            println!("Ok, waiting next ..."); 
+    }              
     // If User input chars              
     if innum > 1 {
-        let output = format!("{}", guess.trim() );
-        return output;  
+        // Необходимо убрать перевод строки из введенной строки перевода
+        _output = format!("{}", in_buff.trim() );
     } else { // Using English translating
-        let output = opis.trim();
-        return output.to_string();
+        _output = opis.to_string();
     }
+    return _output;
 }
 
 // ----------------------------------------------------------------------
 fn main() {
-
-    let args: Args = Args::docopt().decode().unwrap_or_else(|e| e.exit());
+    let docopt = Args::docopt();
+    let args: Args = docopt.decode().unwrap_or_else(|e| e.exit());
+    
     if args.flag_stdout {
-        // Debug: println!("{:?}", args);
-        if args.flag_h { println!("Print Help coming soon ..." ); return; }
-        if args.flag_version { println!("Print Version coming soon ..." ); return; }
+        if args.flag_version { println!("Print Version coming soon ..." ); return }
     }
-     
+
     let mut engvec: Vec<EnglishName> = Vec::new();
     let mut rusvec: Vec<RussianName> = Vec::new();
 
     let re = Regex::new(r"(.*)(,)(.*)(\x22(.*)\x22)").unwrap();
-    // Create English Vector
-    for line in open_any_file(&args.arg_engfile.to_string()).lines() {
+
+    // Create English Vector 
+    for line in open_any_file(&args.arg_engfile).lines() {
         let s = line.unwrap();
         for cap in re.captures_iter(&s) {
             let ubs = EnglishName::new( cap.at(1).unwrap(), cap.at(5).unwrap() );
@@ -154,17 +143,16 @@ fn main() {
     }
     assert!( !engvec.is_empty() );
     // Create Russian Vector
-    for line in open_any_file(&args.arg_rusfile.to_string()).lines() {
+    for line in open_any_file(&args.arg_rusfile).lines() {
         let s = line.unwrap();
         for cap in re.captures_iter(&s) {
             let ubs = RussianName::new( cap.at(1).unwrap(), cap.at(5).unwrap() );
             rusvec.push(ubs);
         }
     }
-    assert!( !rusvec.is_empty() );  
+    // assert!( !rusvec.is_empty() );
 
 	//  Подготовка закончилась, начинаем работу.
-
     let mut found = false;
     let mut outstr  = String::new();
 	let mut _transme = String::new();
@@ -218,21 +206,22 @@ fn main() {
 
     // File write, if needed
     if args.flag_stdout == false {
-        let mut wr = create_out_file(&args.arg_outfile.to_string());
+        let mut wr = create_out_file( &args.arg_outfile );
+        // Check Len OutString
         if outstr.len() > 0 {
             match wr.write_all(&outstr.as_bytes()) {
                 Err(why) => {
-                    panic!("couldn't write to{}: {}", 
+                    panic!("Couldn't write to{}: {}", 
                         &args.arg_outfile.to_string(),
                         Error::description(&why)) 
                 },
                 Ok(_) => (),
             };
             match wr.flush() {
-                Err(why) => panic!("Don't flush: {}", Error::description(&why) ),
+                Err(why) => panic!("Error - don't flush: {}", Error::description(&why) ),
                 Ok(_) => (),
             };	
-        } // Check Len
+        } // End check Len
     }
 
 }

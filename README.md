@@ -38,6 +38,7 @@ M_DONE,                                           "Done";
 * После получения файла опять используем "Notepad++" для преобразования обратно в ANSI, по аналогии со вторым пунктом.
 
 ## Download
+* [Version 0.0.8](https://github.com/Ales999/rus-fritz/archive/rusfritz-0.0.8.zip)
 * [Version 0.0.7](https://github.com/Ales999/rus-fritz/archive/rusfritz-0.0.7.zip)
 * [Version 0.0.6](https://github.com/Ales999/rus-fritz/archive/0.0.6.zip)
 
@@ -65,25 +66,25 @@ $ cargo build --release
    Compiling regex_macros v0.1.21
    Compiling docopt v0.6.74
    Compiling docopt_macros v0.6.74
-   Compiling Rusic Fritz v0.0.6
+   Compiling Rusic Fritz v0.0.6 (file://...)
 $   
 ```
 
 ## Usage
 ```
 $ cd target/release/
-$ ./rus_fritz -?
-Unknown flag: '-?'
+$ ./rus_fritz --help
+Rus Fritz.
 
 Usage:
-	rus_fritz -e <engfile>  -r <rusfile> ( -o <outfile> | --stdout ) [--askme -q]
-	rus_fritz (-h | --help)
-	rus_fritz --version
+    rus_fritz -e <engfile>  -r <rusfile> ( -o <outfile> | --stdout ) [ -q ] [ --askme ]
+    rus_fritz --help
+    rus_fritz --version
 Options:
-  -h --help		Show this screen.
-  --version		Show version.
-  --askme		Ask Me for translate
-  -q			Quet mode
+  -q        Quet mode
+  --askme   Ask Me for translate
+  --help    Display this help and exit
+  --version Output version information and exit
 $
 ```
 
