@@ -33,8 +33,7 @@ Options:
   --askme	Ask Me for translate
   --help	Display this help and exit
   --version	Output version information and exit
-" //, arg_engfile: String, arg_rfile: String
-);
+");
 
 struct EnglishName {
     name: String,
@@ -66,22 +65,6 @@ impl RussianName {
     }
 }
 
-/*
-use std::fmt::{ Display, Formatter };
-
-impl std::fmt::Display for EnglishName {    
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
-        write!(f, "Display Eng: {},\t\t\t{}", self.name, self.opis)
-    }
-}
-
-impl std::fmt::Display for RussianName {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
-        write!(f, "Display Rus: {},\t\t\t{}", self.name, self.opis)
-    }
-}
-*/
-
 /// Открыть файл
 fn open_any_file( file_name: &str ) -> BufReader<File> {
     let path = Path::new(file_name);
@@ -94,7 +77,7 @@ fn open_any_file( file_name: &str ) -> BufReader<File> {
     return reader;
 }
 
-
+/// Создать и открыть файл для записи результатов
 fn create_out_file( file_name: &str ) -> BufWriter<File> {
     let path = Path::new(file_name);
     let display = path.display();
@@ -106,7 +89,6 @@ fn create_out_file( file_name: &str ) -> BufWriter<File> {
     let writer = BufWriter::new(file);
     return writer;
 }
-
 
 fn ask_me_trans( opis: &str, flag_q: bool ) -> String {
 
@@ -132,7 +114,6 @@ fn ask_me_trans( opis: &str, flag_q: bool ) -> String {
         // Необходимо убрать перевод строки из введенной строки перевода
         _output = format!("{}", in_buff.trim() );
     } else { // Using English translating
-        //_output = format!("{}", opis.trim() );
         _output = opis.to_string();
     }
     return _output;
@@ -142,12 +123,8 @@ fn ask_me_trans( opis: &str, flag_q: bool ) -> String {
 fn main() {
     let docopt = Args::docopt();
     let args: Args = docopt.decode().unwrap_or_else(|e| e.exit());
-    //println!("--------");
-    //println!("{:?}", args);
     
     if args.flag_stdout {
-        // Debug: println!("{:?}", args);
-        //if args.flag_h { println!("Print Help coming soon ..." ); return; }
         if args.flag_version { println!("Print Version coming soon ..." ); return }
     }
 
@@ -155,8 +132,8 @@ fn main() {
     let mut rusvec: Vec<RussianName> = Vec::new();
 
     let re = Regex::new(r"(.*)(,)(.*)(\x22(.*)\x22)").unwrap();
+
     // Create English Vector 
-    
     for line in open_any_file(&args.arg_engfile).lines() {
         let s = line.unwrap();
         for cap in re.captures_iter(&s) {
@@ -173,14 +150,11 @@ fn main() {
             rusvec.push(ubs);
         }
     }
-    assert!( !rusvec.is_empty() );
-     
+    // assert!( !rusvec.is_empty() );
 
 	//  Подготовка закончилась, начинаем работу.
-
     let mut found = false;
     let mut outstr  = String::new();
-//	#[allow(dead_code)]
 	let mut _transme = String::new();
 
     if args.flag_stdout {
@@ -233,6 +207,7 @@ fn main() {
     // File write, if needed
     if args.flag_stdout == false {
         let mut wr = create_out_file( &args.arg_outfile );
+        // Check Len OutString
         if outstr.len() > 0 {
             match wr.write_all(&outstr.as_bytes()) {
                 Err(why) => {
@@ -246,7 +221,7 @@ fn main() {
                 Err(why) => panic!("Error - don't flush: {}", Error::description(&why) ),
                 Ok(_) => (),
             };	
-        } // Check Len
+        } // End check Len
     }
 
 }
