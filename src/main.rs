@@ -25,7 +25,7 @@ docopt!(Args derive Debug,"
 Rus Fritz.
 
 Usage:
-    rus_fritz -e <engfile>  -r <rusfile> ( -o <outfile> | --stdout ) [ -q ] [--askme] 
+    rus_fritz -e <engfile>  -r <rusfile> ( -o <outfile> | --stdout ) [ -q ] [ --askme ] 
     rus_fritz --help
     rus_fritz --version
 Options:
