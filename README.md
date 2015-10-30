@@ -33,7 +33,7 @@ M_DONE,                                           "Done";
 ## Waring
 Важные замечание по сборке и использованию:
 
-* Необходимо использовать Nightly (1.5) сборку (Дистрибутивы есть для Mac, Linux, Windows).
+* Необходимо использовать Nightly (1.6) сборку (Дистрибутивы есть для Mac, Linux, Windows).
 * Файлы должны быть в UTF-8 (Без BOM). Оригинальные файлы Fritz идут в ANSI. Для перекодирования удобнее всего использовать программу [Notepad++](https://notepad-plus-plus.org), которая правда только для  Windows: Открываем файл, - Кодировки - Преобразовать в UTF-8 (Без BOM).
 * После получения файла опять используем "Notepad++" для преобразования обратно в ANSI, по аналогии со вторым пунктом.
 
@@ -88,6 +88,15 @@ Options:
 $
 ```
 
+## Example with Windows
+```
+C:\master>rus_fritz.exe -e EngFrame.strings -r RusFrame.strings -o NewFrame.strings --askme -q
+Total
+Всего
+No annotators found
+Не найден комментатор
+```
+
 ## Contributors
 
 ### Contributors on GitHub
@@ -98,7 +107,7 @@ $
 * see [LICENSE](https://github.com/Ales999/rus-fritz/blob/master/LICENSE) file
 
 ## Version 
-* Version 0.0.7
+* Version 0.0.8
 
 ## How-to use this code
 * see [INSTRUCTIONS](https://github.com/Ales999/rus-fritz/blob/master/INSTRUCTIONS.md) file
