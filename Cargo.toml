@@ -9,7 +9,7 @@ authors = [ "Mekhanoshin Alexey <ales999@gmail.com>" ]
 name = "rus_fritz"
 
 [dependencies]
-regex = "0.1.8"
+regex = "1.5.5"
 regex_macros = "0.1.8"
 docopt = "0.6"
 docopt_macros = "0.6"
